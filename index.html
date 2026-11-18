@@ -16,6 +16,8 @@
             --accent: #38bdf8;
             --success: #22c55e;
             --danger: #ef4444;
+            --key-bg: #2d3748;
+            --key-hover: #4a5568;
         }
 
         * {
@@ -90,7 +92,7 @@
 
         main {
             flex: 1;
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
             margin: 0 auto;
             padding: 2rem 1rem;
@@ -215,44 +217,71 @@
             justify-content: center;
         }
 
-        /* 左上のロシア語バーチャルキーボード */
+        /* 画像を再現したリアルなバーチャルキーボード */
         .virtual-keyboard {
-            background-color: var(--card-bg);
+            background-color: #171f2b;
             border: 1px solid var(--border);
             border-radius: 0.75rem;
-            padding: 1rem;
-            width: 280px;
+            padding: 0.75rem;
+            width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
         .keyboard-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-sub);
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             text-align: center;
+            font-weight: 600;
         }
 
-        .keyboard-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
+        .kb-row {
+            display: flex;
             gap: 4px;
+            margin-bottom: 4px;
+            justify-content: center;
         }
 
-        .key-btn {
-            background-color: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--border);
+        .kb-key {
+            background-color: var(--key-bg);
+            border: 1px solid rgba(255,255,255,0.06);
             color: var(--text-main);
-            padding: 0.4rem 0;
-            border-radius: 0.25rem;
-            font-size: 0.95rem;
-            font-weight: bold;
+            border-radius: 4px;
+            height: 36px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 600;
             transition: all 0.1s;
+            user-select: none;
         }
 
-        .key-btn:hover {
-            background-color: var(--primary);
+        .kb-key:hover {
+            background-color: var(--key-hover);
             border-color: var(--accent);
+        }
+
+        .kb-key .sub-label {
+            font-size: 0.55rem;
+            color: var(--text-sub);
+            line-height: 1;
+            margin-bottom: 1px;
+        }
+
+        .kb-key.wide {
+            flex: 1.5;
+            font-size: 0.8rem;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .kb-key.space {
+            flex: 6;
+            font-size: 0.8rem;
+            background-color: rgba(255,255,255,0.1);
         }
 
         /* タイピング本体カード */
@@ -264,7 +293,7 @@
             text-align: center;
             flex: 1;
             min-width: 300px;
-            max-width: 500px;
+            max-width: 450px;
         }
 
         .typing-prompt-ru {
@@ -281,7 +310,7 @@
         }
 
         .typing-prompt-ja {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #fff;
             background: rgba(56, 189, 248, 0.1);
             border: 1px solid rgba(56, 189, 248, 0.3);
@@ -408,10 +437,10 @@
         <!-- タイピングタブ -->
         <div id="typing" class="tab-content">
             <div class="typing-layout">
-                <!-- 左上のバーチャルキーボード -->
+                <!-- 左側：画像通りのロシア語バーチャルキーボード -->
                 <div class="virtual-keyboard">
-                    <div class="keyboard-title">⌨️ ロシア語キーボード</div>
-                    <div class="keyboard-grid" id="virtualKeyboardGrid"></div>
+                    <div class="keyboard-title">⌨️ ロシア語キーボード (ЙЦУКЕН)</div>
+                    <div id="keyboardContainer"></div>
                 </div>
 
                 <!-- タイピング本体 -->
@@ -441,7 +470,6 @@
     </main>
 
     <script>
-        // データ定義
         const alphabetData = [
             { char: 'А а', sound: 'a', desc: '日本語の「ア」に近い' },
             { char: 'Б б', sound: 'b', desc: '英語の b' },
@@ -453,12 +481,12 @@
             { char: 'Ж ж', sound: 'zh', desc: 'ジャ・ジ・ジュのような摩擦音' },
             { char: 'З з', sound: 'z', desc: '英語の z' },
             { char: 'И и', sound: 'i', desc: '日本語の「イ」' },
-            { char: 'Й й', sound: 'y', desc: '英語の y（直前の母音と合わせる）' },
+            { char: 'Й й', sound: 'y', desc: '英語の y' },
             { char: 'К к', sound: 'k', desc: '英語の k' },
-            { char: 'Л л', sound: 'l', desc: '英語の l（少し奥まった発音）' },
+            { char: 'Л л', sound: 'l', desc: '英語の l' },
             { char: 'М м', sound: 'm', desc: '英語の m' },
             { char: 'Н н', sound: 'n', desc: '英語の n' },
-            { char: 'О о', sound: 'o', desc: 'アクセント時は「オ」、非アクセント時は「ア」に近い' },
+            { char: 'О о', sound: 'o', desc: 'アクセント時は「オ」' },
             { char: 'П п', sound: 'p', desc: '英語の p' },
             { char: 'Р р', sound: 'r', desc: '巻き舌の「R」' },
             { char: 'С с', sound: 's', desc: '英語の s' },
@@ -469,9 +497,9 @@
             { char: 'Ц ц', sound: 'ts', desc: '「ツ」の音' },
             { char: 'Ч ч', sound: 'ch', desc: '英語の ch' },
             { char: 'Ш ш', sound: 'sh', desc: '英語の sh' },
-            { char: 'Щ щ', sound: 'shch', desc: '柔らかい「シチ」のような音' },
-            { char: 'Ъ ъ', sound: '（硬音符）', desc: '前の子音をハッキリ独立させる' },
-            { char: 'Ы ы', sound: 'i (奥)', desc: '奥歯を噛みしめて「ウ」と「イ」の中間の音' },
+            { char: 'Щ щ', sound: 'shch', desc: '柔らかい「シチ」' },
+            { char: 'Ъ ъ', sound: '（硬音符）', desc: '前の子音を独立させる' },
+            { char: 'Ы ы', sound: 'i (奥)', desc: '「ウ」と「イ」の中間' },
             { char: 'Ь ь', sound: '（軟音符）', desc: '前の子音を柔らかくする' },
             { char: 'Э э', sound: 'e', desc: '口を横に引く「エ」' },
             { char: 'Ю ю', sound: 'yu', desc: '「ユ」' },
@@ -494,7 +522,6 @@
         let score = localStorage.getItem('russian_score') ? parseInt(localStorage.getItem('russian_score')) : 0;
         updateScoreBadge();
 
-        // タブ切り替え
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -511,7 +538,6 @@
             localStorage.setItem('russian_score', score);
         }
 
-        // アルファベット描画
         function renderAlphabet() {
             const grid = document.getElementById('alphabetGrid');
             grid.innerHTML = alphabetData.map(item => `
@@ -523,13 +549,34 @@
             `).join('');
         }
 
-        // バーチャルキーボード描画 (よく使うキリル文字)
-        const keyboardChars = ['а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'];
+        // 画像に合わせたリアルなキーボードのレイアウトデータ定義
+        const keyboardLayout = [
+            [ {sub:'1', main:'й'}, {sub:'2', main:'ц'}, {sub:'3', main:'у'}, {sub:'4', main:'к'}, {sub:'5', main:'е'}, {sub:'6', main:'н'}, {sub:'7', main:'г'}, {sub:'8', main:'ш'}, {sub:'9', main:'щ'}, {sub:'0', main:'з'}, {sub:'-', main:'х'} ],
+            [ {sub:'@', main:'ф'}, {sub:'#', main:'ы'}, {sub:'№', main:'в'}, {sub:'$', main:'а'}, {sub:'%', main:'п'}, {sub:'&', main:'р'}, {sub:'*', main:'о'}, {sub:'(', main:'л'}, {sub:')', main:'д'}, {sub:'_', main:'ж'}, {sub:'+', main:'э'} ],
+            [ {sub:'?', main:'я'}, {sub:'!', main:'ч'}, {sub:'/', main:'с'}, {sub:':', main:'м'}, {sub:';', main:'и'}, {sub:'"', main:'т'}, {sub:'\'', main:'ь'}, {sub:',', main:'б'}, {sub:'.', main:'ю'}, {sub:'', main:'ъ'} ]
+        ];
+
         function renderVirtualKeyboard() {
-            const grid = document.getElementById('virtualKeyboardGrid');
-            grid.innerHTML = keyboardChars.map(char => `
-                <button class="key-btn" onclick="insertKey('${char}')">${char}</button>
-            `).join('');
+            const container = document.getElementById('keyboardContainer');
+            let html = '';
+            
+            keyboardLayout.forEach(row => {
+                html += '<div class="kb-row">';
+                row.forEach(key => {
+                    html += `<button class="kb-key" onclick="insertKey('${key.main}')">
+                        <span class="sub-label">${key.sub}</span>
+                        <span>${key.main}</span>
+                    </button>`;
+                });
+                html += '</div>';
+            });
+
+            // 最下段（地球儀アイコン、スペース、キーボード隠すアイコンなど）
+            html += `<div class="kb-row">
+                <button class="kb-key wide" onclick="insertKey(' ')">space</button>
+            </div>`;
+
+            container.innerHTML = html;
         }
 
         function insertKey(char) {
@@ -539,10 +586,9 @@
             const val = input.value;
             input.value = val.substring(0, start) + char + val.substring(end);
             input.focus();
-            input.setSelectionRange(start + 1, start + 1);
+            input.setSelectionRange(start + char.length, start + char.length);
         }
 
-        // 単語帳描画
         function renderVocab(data) {
             const grid = document.getElementById('vocabGrid');
             grid.innerHTML = data.map(item => `
@@ -569,7 +615,6 @@
             renderVocab(filtered);
         }
 
-        // タイピング練習ロジック
         let currentTypingIndex = 0;
         function loadTypingItem() {
             const item = vocabData[currentTypingIndex];
@@ -585,7 +630,7 @@
             const target = vocabData[currentTypingIndex].ru;
             const feedback = document.getElementById('typeFeedback');
 
-            if (input === target) {
+            if (input.toLowerCase() === target.toLowerCase()) {
                 feedback.className = 'feedback correct';
                 feedback.innerText = '正解です！素晴らしい！ 🎉';
                 score++;
@@ -606,7 +651,6 @@
             }
         });
 
-        // クイズロジック
         let currentQuiz = null;
         function loadQuiz() {
             const randomVocab = vocabData[Math.floor(Math.random() * vocabData.length)];
@@ -638,7 +682,6 @@
             setTimeout(loadQuiz, 2000);
         }
 
-        // 初期化実行
         renderAlphabet();
         renderVirtualKeyboard();
         renderVocab(vocabData);
