@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ロシア語マスター！</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #334155;
+            --accent: #38bdf8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .stats-badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        nav {
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background-color: var(--primary);
+        }
+
+        main {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* アルファベットセクション */
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1rem;
+        }
+
+        .alpha-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .alpha-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+
+        .alpha-char {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .alpha-sound {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+        }
+
+        .alpha-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        /* 単語帳セクション */
+        .vocab-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        select, input[type="text"] {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            outline: none;
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .vocab-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .vocab-ru {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .vocab-read {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            margin-bottom: 0.5rem;
+        }
+
+        .vocab-ja {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .vocab-tip {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.375rem;
+            border-radius: 0.25rem;
+            color: #cbd5e1;
+        }
+
+        /* タイピングセクションのレイアウト */
+        .typing-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* 左上のロシア語バーチャルキーボード */
+        .virtual-keyboard {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            width: 280px;
+        }
+
+        .keyboard-title {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+        }
+
+        .key-btn {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.4rem 0;
+            border-radius: 0.25rem;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+        }
+
+        .key-btn:hover {
+            background-color: var(--primary);
+            border-color: var(--accent);
+        }
+
+        /* タイピング本体カード */
+        .typing-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .typing-prompt-ru {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .typing-prompt-read {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin-bottom: 0.5rem;
+        }
+
+        .typing-prompt-ja {
+            font-size: 1.2rem;
+            color: #fff;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .typing-input-box {
+            width: 100%;
+            font-size: 1.25rem;
+            padding: 0.75rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .feedback.correct { color: var(--success); }
+        .feedback.incorrect { color: var(--danger); }
+
+        /* クイズセクション */
+        .quiz-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .quiz-option-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .quiz-option-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .score-board {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🇷🇺 ロシア語マスター</h1>
+        <div class="stats-badge" id="statsBadge">正解数: 0</div>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('alphabet')">アルファベット</button>
+        <button class="tab-btn" onclick="switchTab('vocab')">単語帳</button>
+        <button class="tab-btn" onclick="switchTab('typing')">タイピング練習</button>
+        <button class="tab-btn" onclick="switchTab('quiz')">ミニクイズ</button>
+    </nav>
+
+    <main>
+        <!-- アルファベットタブ -->
+        <div id="alphabet" class="tab-content active">
+            <h2 style="margin-bottom: 1rem;">キリル文字一覧（読み方とコツ）</h2>
+            <div class="alphabet-grid" id="alphabetGrid"></div>
+        </div>
+
+        <!-- 単語帳タブ -->
+        <div id="vocab" class="tab-content">
+            <div class="vocab-controls">
+                <select id="categorySelect" onchange="filterVocab()">
+                    <option value="all">すべてのカテゴリ</option>
+                    <option value="greeting">あいさつ</option>
+                    <option value="basic">基本表現</option>
+                    <option value="food">食べ物・飲み物</option>
+                </select>
+                <input type="text" id="vocabSearch" placeholder="単語を検索..." oninput="filterVocab()">
+            </div>
+            <div class="vocab-grid" id="vocabGrid"></div>
+        </div>
+
+        <!-- タイピングタブ -->
+        <div id="typing" class="tab-content">
+            <div class="typing-layout">
+                <!-- 左上のバーチャルキーボード -->
+                <div class="virtual-keyboard">
+                    <div class="keyboard-title">⌨️ ロシア語キーボード</div>
+                    <div class="keyboard-grid" id="virtualKeyboardGrid"></div>
+                </div>
+
+                <!-- タイピング本体 -->
+                <div class="typing-container">
+                    <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 0.75rem;">以下の意味のロシア語を入力しよう！</div>
+                    <div class="typing-prompt-ru" id="typeRu">Привет</div>
+                    <div class="typing-prompt-read" id="typeRead">プリヴェート</div>
+                    <div>
+                        <span class="typing-prompt-ja" id="typeJa">こんにちは（親しい間柄）</span>
+                    </div>
+                    <input type="text" id="typeInput" class="typing-input-box" placeholder="ここに入力..." autocomplete="off">
+                    <br>
+                    <button class="btn" onclick="checkTyping()">確認する</button>
+                    <div class="feedback" id="typeFeedback"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- クイズタブ -->
+        <div id="quiz" class="tab-content">
+            <div class="quiz-container" id="quizBox">
+                <div class="quiz-question" id="quizQuestion">読み込み中...</div>
+                <div class="quiz-options" id="quizOptions"></div>
+                <div class="score-board" id="quizScore"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // データ定義
+        const alphabetData = [
+            { char: 'А а', sound: 'a', desc: '日本語の「ア」に近い' },
+            { char: 'Б б', sound: 'b', desc: '英語の b' },
+            { char: 'В в', sound: 'v', desc: '英語の v' },
+            { char: 'Г г', sound: 'g', desc: '英語の g（常に硬い音）' },
+            { char: 'Д д', sound: 'd', desc: '英語の d' },
+            { char: 'Е е', sound: 'ye / e', desc: '「イェ」または「エ」' },
+            { char: 'Ё ё', sound: 'yo', desc: '「ヨ」' },
+            { char: 'Ж ж', sound: 'zh', desc: 'ジャ・ジ・ジュのような摩擦音' },
+            { char: 'З з', sound: 'z', desc: '英語の z' },
+            { char: 'И и', sound: 'i', desc: '日本語の「イ」' },
+            { char: 'Й й', sound: 'y', desc: '英語の y（直前の母音と合わせる）' },
+            { char: 'К к', sound: 'k', desc: '英語の k' },
+            { char: 'Л л', sound: 'l', desc: '英語の l（少し奥まった発音）' },
+            { char: 'М м', sound: 'm', desc: '英語の m' },
+            { char: 'Н н', sound: 'n', desc: '英語の n' },
+            { char: 'О о', sound: 'o', desc: 'アクセント時は「オ」、非アクセント時は「ア」に近い' },
+            { char: 'П п', sound: 'p', desc: '英語の p' },
+            { char: 'Р р', sound: 'r', desc: '巻き舌の「R」' },
+            { char: 'С с', sound: 's', desc: '英語の s' },
+            { char: 'Т т', sound: 't', desc: '英語の t' },
+            { char: 'У у', sound: 'u', desc: '日本語の「ウ」' },
+            { char: 'Ф ф', sound: 'f', desc: '英語の f' },
+            { char: 'Х х', sound: 'kh / h', desc: 'ハ行の強い音' },
+            { char: 'Ц ц', sound: 'ts', desc: '「ツ」の音' },
+            { char: 'Ч ч', sound: 'ch', desc: '英語の ch' },
+            { char: 'Ш ш', sound: 'sh', desc: '英語の sh' },
+            { char: 'Щ щ', sound: 'shch', desc: '柔らかい「シチ」のような音' },
+            { char: 'Ъ ъ', sound: '（硬音符）', desc: '前の子音をハッキリ独立させる' },
+            { char: 'Ы ы', sound: 'i (奥)', desc: '奥歯を噛みしめて「ウ」と「イ」の中間の音' },
+            { char: 'Ь ь', sound: '（軟音符）', desc: '前の子音を柔らかくする' },
+            { char: 'Э э', sound: 'e', desc: '口を横に引く「エ」' },
+            { char: 'Ю ю', sound: 'yu', desc: '「ユ」' },
+            { char: 'Я я', sound: 'ya', desc: '「ヤ」' }
+        ];
+
+        const vocabData = [
+            { ru: 'Привет', read: 'プリヴェート', ja: 'こんにちは（親しい間柄）', category: 'greeting', tip: '友達や親しい人に使います。' },
+            { ru: 'Здравствуйте', read: 'ズドラーストヴィチェ', ja: 'こんにちは（丁寧）', category: 'greeting', tip: '初対面や目上の人に使う丁寧なあいさつ。' },
+            { ru: 'Спасибо', read: 'スパスィーバ', ja: 'ありがとう', category: 'basic', tip: 'アクセントは「イー」の部分にあります。' },
+            { ru: 'Пожалуйста', read: 'パジャールスタ', ja: 'どういたしまして / お願いします', category: 'basic', tip: '「どうぞ」や「どういたしまして」の両方に使えます！' },
+            { ru: 'Да / Нет', read: 'ダ / ニェト', ja: 'はい / いいえ', category: 'basic', tip: '基本中の基本の返事です。' },
+            { ru: 'До свидания', read: 'ダ スヴィダーニヤ', ja: 'さようなら', category: 'greeting', tip: '「また会う日まで」という意味が含まれます。' },
+            { ru: 'Вода', read: 'ヴァダー', ja: '水', category: 'food', tip: 'アクセントが後ろにあるため、Oが「ア」のように発音されます。' },
+            { ru: 'Хлеб', read: 'フリェプ', ja: 'パン', category: 'food', tip: '最後のБは無声音化して「プ」のようになります。' },
+            { ru: 'Чай', read: 'チャイ', ja: 'お茶', category: 'food', tip: 'ロシア人は紅茶が大好きです！' },
+            { ru: 'Кофе', read: 'コーフィ', ja: 'コーヒー', category: 'food', tip: '外来語ですが日常的に非常によく使われます。' }
+        ];
+
+        let score = localStorage.getItem('russian_score') ? parseInt(localStorage.getItem('russian_score')) : 0;
+        updateScoreBadge();
+
+        // タブ切り替え
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'quiz') {
+                loadQuiz();
+            }
+        }
+
+        function updateScoreBadge() {
+            document.getElementById('statsBadge').innerText = `正解数: ${score}`;
+            localStorage.setItem('russian_score', score);
+        }
+
+        // アルファベット描画
+        function renderAlphabet() {
+            const grid = document.getElementById('alphabetGrid');
+            grid.innerHTML = alphabetData.map(item => `
+                <div class="alpha-card">
+                    <div class="alpha-char">${item.char}</div>
+                    <div class="alpha-sound">[${item.sound}]</div>
+                    <div class="alpha-desc">${item.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // バーチャルキーボード描画 (よく使うキリル文字)
+        const keyboardChars = ['а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'];
+        function renderVirtualKeyboard() {
+            const grid = document.getElementById('virtualKeyboardGrid');
+            grid.innerHTML = keyboardChars.map(char => `
+                <button class="key-btn" onclick="insertKey('${char}')">${char}</button>
+            `).join('');
+        }
+
+        function insertKey(char) {
+            const input = document.getElementById('typeInput');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const val = input.value;
+            input.value = val.substring(0, start) + char + val.substring(end);
+            input.focus();
+            input.setSelectionRange(start + 1, start + 1);
+        }
+
+        // 単語帳描画
+        function renderVocab(data) {
+            const grid = document.getElementById('vocabGrid');
+            grid.innerHTML = data.map(item => `
+                <div class="vocab-card">
+                    <div>
+                        <div class="vocab-ru">${item.ru}</div>
+                        <div class="vocab-read">${item.read}</div>
+                        <div class="vocab-ja">${item.ja}</div>
+                    </div>
+                    <div class="vocab-tip">💡 ${item.tip}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterVocab() {
+            const category = document.getElementById('categorySelect').value;
+            const query = document.getElementById('vocabSearch').value.toLowerCase();
+            
+            const filtered = vocabData.filter(item => {
+                const matchCategory = category === 'all' || item.category === category;
+                const matchQuery = item.ru.toLowerCase().includes(query) || item.ja.includes(query) || item.read.includes(query);
+                return matchCategory && matchQuery;
+            });
+            renderVocab(filtered);
+        }
+
+        // タイピング練習ロジック
+        let currentTypingIndex = 0;
+        function loadTypingItem() {
+            const item = vocabData[currentTypingIndex];
+            document.getElementById('typeRu').innerText = item.ru;
+            document.getElementById('typeRead').innerText = `[ ${item.read} ]`;
+            document.getElementById('typeJa').innerText = item.ja;
+            document.getElementById('typeInput').value = '';
+            document.getElementById('typeFeedback').innerText = '';
+        }
+
+        function checkTyping() {
+            const input = document.getElementById('typeInput').value.trim();
+            const target = vocabData[currentTypingIndex].ru;
+            const feedback = document.getElementById('typeFeedback');
+
+            if (input === target) {
+                feedback.className = 'feedback correct';
+                feedback.innerText = '正解です！素晴らしい！ 🎉';
+                score++;
+                updateScoreBadge();
+                setTimeout(() => {
+                    currentTypingIndex = (currentTypingIndex + 1) % vocabData.length;
+                    loadTypingItem();
+                }, 1500);
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerText = `惜しい！正解は "${target}" です。`;
+            }
+        }
+
+        document.getElementById('typeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkTyping();
+            }
+        });
+
+        // クイズロジック
+        let currentQuiz = null;
+        function loadQuiz() {
+            const randomVocab = vocabData[Math.floor(Math.random() * vocabData.length)];
+            const wrongOptions = vocabData.filter(v => v.ja !== randomVocab.ja)
+                                         .sort(() => 0.5 - Math.random())
+                                         .slice(0, 3)
+                                         .map(v => v.ja);
+            
+            const options = [...wrongOptions, randomVocab.ja].sort(() => 0.5 - Math.random());
+            currentQuiz = { target: randomVocab, options };
+
+            document.getElementById('quizQuestion').innerText = `「${randomVocab.ru}」(${randomVocab.read}) の意味はどれ？`;
+            
+            const optionsDiv = document.getElementById('quizOptions');
+            optionsDiv.innerHTML = options.map(opt => `
+                <button class="quiz-option-btn" onclick="checkQuiz('${opt}')">${opt}</button>
+            `).join('');
+            document.getElementById('quizScore').innerText = '';
+        }
+
+        function checkQuiz(selected) {
+            if (selected === currentQuiz.target.ja) {
+                document.getElementById('quizScore').innerHTML = '<span style="color: var(--success);">正解！お見事です！✨</span>';
+                score += 2;
+                updateScoreBadge();
+            } else {
+                document.getElementById('quizScore').innerHTML = `<span style="color: var(--danger);">不正解… 正解は「${currentQuiz.target.ja}」でした。</span>`;
+            }
+            setTimeout(loadQuiz, 2000);
+        }
+
+        // 初期化実行
+        renderAlphabet();
+        renderVirtualKeyboard();
+        renderVocab(vocabData);
+        loadTypingItem();
+    </script>
+</body>
+</html>
